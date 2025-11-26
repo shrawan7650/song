@@ -5,50 +5,55 @@ const lyrics = [
   "🥺 Do lafzon mein yeh bayan na ho paaye...."
 ];
 
+
+const timestamps = [
+  0.0,   
+  7.70,   
+  14.5, 
+  21.50   
+];
+
 const COLORS = {
-  yellow: "\x1b[33m",
-  cyan: "\x1b[36m",
+  start: "\x1b[33m", 
+  text: "\x1b[31m",  
   reset: "\x1b[0m",
 };
 
+const TYPING_DELAY = 135; 
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function getDelay(line) {
-  const words = line.split(/\s+/).filter(Boolean).length;
+async function printLyrics() {
+  console.log(COLORS.start + "🎧 Close your eyes & feel...\n" + COLORS.reset);
 
-  return 500 + words * 250;
-}
+  // yahi se hum "song ka time" maan rahe hain
+  const startTime = Date.now();
 
-async function typeLine(line) {
-  process.stdout.write(COLORS.cyan);
+  for (let i = 0; i < lyrics.length; i++) {
+    const line = lyrics[i];
 
-  for (const ch of line) {
-    process.stdout.write(ch);
-    await sleep(50);
-  }
+    // is line ko kab shuru karna hai (absolute time)
+    const targetTime = startTime + timestamps[i] * 200; // sec -> ms
+    const now = Date.now();
+    const waitTime = Math.max(0, targetTime - now);
 
-  process.stdout.write(COLORS.reset + "\n");
-}
+    // jab tak us time tak nahi pahuchte, rukke rahenge
+    await sleep(waitTime);
 
-async function run() {
-  console.log(COLORS.yellow + "🎧 Close your eyes & feel..." + COLORS.reset);
-  await sleep(200);
-  console.log("");
+    // ab line type hogi
+    for (const ch of line) {
+      process.stdout.write(COLORS.text + ch + COLORS.reset);
+      await sleep(TYPING_DELAY);
+    }
 
-  for (const line of lyrics) {
-    await typeLine(line);
-    await sleep(getDelay(line));
     console.log("");
   }
 
-console.log(
-  COLORS.yellow + "✨ next song comment and follow @inspitech" + COLORS.reset
-);
-
+  console.log(
+    COLORS.start + "\n ✨ next song comment and follow @inspitech" + COLORS.reset
+  );
 }
 
-run();
-
+printLyrics();
